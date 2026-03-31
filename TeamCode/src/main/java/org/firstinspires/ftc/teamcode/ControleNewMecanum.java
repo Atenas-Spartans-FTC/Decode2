@@ -19,6 +19,8 @@ public class ControleNewMecanum extends LinearOpMode {
     private double vel;// Variavel da velocidade chassis
     private Boolean lado = null; // null = não lido // true = azul // false = vermelho
 
+    double sin, cos, teta, x, y, turn, power, max, dep, ddp, tep, tdp;
+
     @Override
     public void runOpMode() {
         // Mapear os motores
@@ -48,34 +50,34 @@ public class ControleNewMecanum extends LinearOpMode {
             result = limelight.getLatestResult();
             fullTelemetry();
             //Chassis
-            if (gamepad1.right_bumper){ // R1
-                vel = 1.0;
-            }else {
-                vel = 0.7;
+
+            x = gamepad1.left_stick_x;
+            y = gamepad1.left_stick_y;
+            turn = gamepad1.right_stick_x;
+
+            teta = Math.atan2(y,x);
+            power = Math.hypot(x,y);
+            sin = Math.sin(teta - Math.PI/4);
+            cos = Math.cos(teta - Math.PI/4);
+            max = Math.max(Math.abs(sin),Math.abs(cos));
+
+            dep = power * cos/max + turn;
+            ddp = power * sin/max - turn;
+            tep = power * sin/max + turn;
+            tdp = power * cos/max - turn;
+
+            if ((power + Math.abs(turn)) > 1){
+                dep /= power + turn;
+                ddp /= power + turn;
+                tep /= power + turn;
+                tdp /= power + turn;
             }
-            if (gamepad1.dpad_up) { // Seta para cima
-                frente();
-            }else if (gamepad1.dpad_down) { // Seta para baixo
-                tras();
-            }else if (gamepad1.dpad_left) { // Seta para esquerda
-                esquerda();
-            }else if (gamepad1.dpad_right) { // Seta para direita
-                direita();
-            }else if (gamepad1.left_trigger > 0) { // L2
-                giroE();
-            }else if (gamepad1.right_trigger > 0) { // R2
-                giroD();
-            }else if (gamepad1.a){ // X
-                diagonalTE();
-            }else if (gamepad1.b){ // Bolinha
-                diagonalFE();
-            }else if (gamepad1.x){ // Quadrado
-                diagonalFD();
-            }else if (gamepad1.y){ // Triangulo
-                diagonalTD();
-            }else {
-                parado();
-            }
+
+            de.setPower(dep);
+            dd.setPower(ddp);
+            te.setPower(tep);
+            td.setPower(tdp);
+
             //Lançador
             if (gamepad2.y){
                 la.setPower(1);

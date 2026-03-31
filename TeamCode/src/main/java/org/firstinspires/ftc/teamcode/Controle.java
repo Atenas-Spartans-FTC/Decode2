@@ -35,6 +35,7 @@ public class Controle extends LinearOpMode {
         //Corrige a direção dos motores
         de.setDirection(DcMotor.Direction.REVERSE);
         te.setDirection(DcMotor.Direction.REVERSE);
+        lk.setDirection(DcMotor.Direction.REVERSE);
 
         // Inicia e configura a câmera
         initCamera();
