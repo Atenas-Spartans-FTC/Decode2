@@ -16,7 +16,6 @@ public class Controle extends LinearOpMode {
     private DcMotor dd, de, td, te;// Variaveis dos motores
     private DcMotor la; //lancador
     private DcMotor lk;   //lock
-    private double vel;// Variavel da velocidade chassis
     private Boolean lado = null; // null = não lido // true = azul // false = vermelho
 
     double sin, cos, teta, x, y, turn, power, max, dep, ddp, tep, tdp;
@@ -53,7 +52,7 @@ public class Controle extends LinearOpMode {
             //Chassis
 
             x = gamepad1.left_stick_x;
-            y = gamepad1.left_stick_y;
+            y = -gamepad1.left_stick_y;
             turn = gamepad1.right_stick_x;
 
             teta = Math.atan2(y,x);
@@ -96,9 +95,9 @@ public class Controle extends LinearOpMode {
                 if(deg[0] == null){
                     parado();
                 }else if(deg[0] < 0){ // x == deg[0]
-                    giroE();
+                    turn = -0.5;
                 }else if(deg[0] > 0){
-                    giroD();
+                    turn = 0.5;
                 }
             }
         }
@@ -172,66 +171,6 @@ public class Controle extends LinearOpMode {
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
         limelight.pipelineSwitch(0);
         limelight.start();
-    }
-    public void frente(){
-        dd.setPower(vel);
-        de.setPower(vel);
-        td.setPower(vel);
-        te.setPower(vel);
-    }
-    public void tras(){
-        dd.setPower(-vel);
-        de.setPower(-vel);
-        td.setPower(-vel);
-        te.setPower(-vel);
-    }
-    public void giroD(){
-        dd.setPower(-vel);
-        de.setPower(vel);
-        td.setPower(-vel);
-        te.setPower(vel);
-    }
-    public void giroE(){
-        dd.setPower(vel);
-        de.setPower(-vel);
-        td.setPower(vel);
-        te.setPower(-vel);
-    }
-    public void esquerda(){
-        dd.setPower(-vel - 0.1);
-        de.setPower(vel + 0.1);
-        td.setPower(vel);
-        te.setPower(-vel);
-    }
-    public void direita(){
-        dd.setPower(vel + 0.1);
-        de.setPower(-vel - 0.1);
-        td.setPower(-vel);
-        te.setPower(vel);
-    }
-    public void diagonalFD(){// x = quad
-        dd.setPower(0);
-        de.setPower(vel);
-        td.setPower(vel);
-        te.setPower(0);
-    }
-    public void diagonalFE(){// b = bol
-        dd.setPower(vel);
-        de.setPower(0);
-        td.setPower(0);
-        te.setPower(vel);
-    }
-    public void diagonalTD(){// y = tri
-        dd.setPower(-vel);
-        de.setPower(0);
-        td.setPower(0);
-        te.setPower(-vel);
-    }
-    public void diagonalTE(){// a = x
-        dd.setPower(0);
-        de.setPower(-vel);
-        td.setPower(-vel);
-        te.setPower(0);
     }
     public void parado(){
         dd.setPower(0);
