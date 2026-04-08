@@ -5,14 +5,22 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+
+import java.sql.Timestamp;
+import java.util.Timer;
 
 @Autonomous
 public class Autonomous_Pid extends LinearOpMode {
     private DcMotor dd,de,td,te;
     GoBildaPinpointDriver pinpointer;
-    private double kp = 0.000072;//verificar no robo
+    private final double kp = 0.000077;//verificar no robo
+    private final double ki = 0.0001;//verificar no robo
+    private final double kd = 0.00000005;
+    double setpoint = 0, errorsum = 0, ilimit = 500, lasterror = 0;
+    ElapsedTime time = new ElapsedTime();
     @Override
     public void runOpMode() throws InterruptedException {
         dd = hardwareMap.get(DcMotor.class, "dd");
@@ -37,6 +45,9 @@ public class Autonomous_Pid extends LinearOpMode {
         final double lastX = pinpointer.getEncoderX();
         final double lastY = pinpointer.getEncoderY();
 
+        errorsum = 0;
+        lasterror = 0;
+
         telemetry.addData("Status", "Initialized");
         telemetry.update();
 
@@ -48,10 +59,30 @@ public class Autonomous_Pid extends LinearOpMode {
             double y = pinpointer.getEncoderY() - lastY;
             double z = pinpointer.getHeading(AngleUnit.DEGREES);
 
-            double setpoint = 1000;
+            setpoint = 10000;
 
             double error = setpoint - y;
-            double speed = kp * error;
+            if (Math.abs(error) < ilimit ) {
+                errorsum += error * time.seconds();
+            }
+            double errorrate = (error - lasterror) / time.seconds();
+
+            time.reset();
+            lasterror = error;
+
+            double m = 630;
+            if (error < 0 && errorsum > -m){
+                errorsum = -m;
+            }else if (error > 0 && errorsum < m){
+                errorsum = m;
+            }else if (error <= 1 || error >= -1){
+                errorsum = 0;
+            }
+
+            double speed = 0;
+            if(error > 1 || error < 1){
+                speed = kp * error + ki * errorsum + kd * errorrate;
+            }
 
             dd.setPower(speed);
             de.setPower(speed);
@@ -61,6 +92,10 @@ public class Autonomous_Pid extends LinearOpMode {
             telemetry.addData("Odometria Y",y);
             telemetry.addData("Odometria X",x);
             telemetry.addData("Odometria Z",z);
+            telemetry.addData("Error", error);
+            telemetry.addData("Erro Sum", errorsum);
+            telemetry.addData("Erro Rate", errorrate);
+            telemetry.addData("Poder", speed);
             telemetry.update();
         }
     }
