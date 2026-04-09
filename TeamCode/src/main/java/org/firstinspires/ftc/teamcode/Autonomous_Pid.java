@@ -18,7 +18,7 @@ public class Autonomous_Pid extends LinearOpMode {
     GoBildaPinpointDriver pinpointer;
     private final double kp = 0.000077;//verificar no robo
     private final double ki = 0.0001;//verificar no robo
-    private final double kd = 0.00000005;
+    private final double kd = 0.0000003;
     double setpoint = 0, errorsum = 0, ilimit = 500, lasterror = 0;
     ElapsedTime time = new ElapsedTime();
     @Override
@@ -70,17 +70,15 @@ public class Autonomous_Pid extends LinearOpMode {
             time.reset();
             lasterror = error;
 
-            double m = 630;
-            if (error < 0 && errorsum > -m){
+            double m = 640;
+            if (error < 0 && errorsum > 0){
                 errorsum = -m;
-            }else if (error > 0 && errorsum < m){
+            }else if (error > 0 && errorsum < 0){
                 errorsum = m;
-            }else if (error <= 1 || error >= -1){
-                errorsum = 0;
             }
 
             double speed = 0;
-            if(error > 1 || error < 1){
+            if(error != 0){
                 speed = kp * error + ki * errorsum + kd * errorrate;
             }
 
